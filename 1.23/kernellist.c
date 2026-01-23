@@ -48,6 +48,12 @@ int main(void)
         free(datap);//释放数据节点
         pos = &handler;//pos指针指向头节点
     }
+    list_for_each(pos, &handler)
+{
+    datap = list_entry(pos, STU, node);  // 获取数据节点
+    list_del(pos);  // 删除节点
+    free(datap);  // 释放节点内存
+}
 
     return 0;
 }
