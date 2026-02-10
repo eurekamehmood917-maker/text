@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<unistd.h>
 #define NAMESIZE 256
 
 struct MENU
@@ -23,7 +24,7 @@ typedef struct llist_head//头节点的结构
 
 LLIST* menu_crate(int);
 
-void print(const void *);
+void print(const void *,int);
 
 int menu_insert(LLIST* ,const void *);
 
@@ -36,3 +37,5 @@ void menu_destroy(LLIST* handler);
 void cai_change(LLIST *handler);
 
 struct llist_node *menu_find_by_name(LLIST *handler, const char* name);
+
+void show_prcode();

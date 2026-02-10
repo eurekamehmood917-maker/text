@@ -1,5 +1,14 @@
 #include "Food.h"
 
+#define RESET "\033[0m"
+#define BG_BLUE_SOFT "\033[48;5;30m"   // 淡蓝背景
+#define FG_WHITE "\033[38;5;255m"       // 纯白字体
+void print(const void *data,int i)
+{	
+    const struct MENU *p = data;
+	printf("\033[%d;54H %s      %.2f     %s          %s\n",i,FG_WHITE,p->price,p->name,RESET);
+}
+
 LLIST* menu_crate(int size)
 {
     LLIST *handler = NULL;
@@ -20,7 +29,12 @@ int menu_insert(LLIST* handler,const void *data)
     if (newnode == NULL)
         return -1;
 
-    memcpy(newnode->data,data,handler->size);
+	memcpy(newnode->data,data,handler->size);
+	while(p->next !=&handler->head)
+	{
+		p = p->next;
+	}
+
 
     newnode->next = p->next;
     p->next = newnode;
@@ -29,10 +43,27 @@ int menu_insert(LLIST* handler,const void *data)
 }
 
 void menu_display(LLIST* handler)
-{
+{	
+	int i =11;
     struct llist_node *cur = handler->head.next;
-    for(; cur != &handler->head; cur = cur->next)
-        print(cur->data);
+		//if(cur -> next == &handler -> head)
+		if(cur == &handler -> head)
+		{
+			printf("\033[10;54H %s %s===============================%s\n",BG_BLUE_SOFT,FG_WHITE,RESET);
+			printf("\033[11;54H %s %s ||                          ||%s\n",BG_BLUE_SOFT,FG_WHITE,RESET);
+			printf("\033[12;54H %s %s ||                          ||%s\n",BG_BLUE_SOFT,FG_WHITE,RESET);
+			printf("\033[13;54H %s %s ||       当前菜单为空       ||%s\n",BG_BLUE_SOFT,FG_WHITE,RESET);
+			printf("\033[14;54H %s %s ||        输入6返回         ||%s\n",BG_BLUE_SOFT,FG_WHITE,RESET);
+			printf("\033[15;54H %s %s ||                          ||%s\n",BG_BLUE_SOFT,FG_WHITE,RESET);
+			printf("\033[16;54H %s %s ||                          ||%s\n",BG_BLUE_SOFT,FG_WHITE,RESET);
+			printf("\033[17;54H %s %s===============================%s\n",BG_BLUE_SOFT,FG_WHITE,RESET);
+			return ;
+		}
+			printf("\033[10;54H %s %s===============================%s\n",BG_BLUE_SOFT,FG_WHITE,RESET);
+            for(; cur != &handler->head; cur = cur->next,i++)
+				print(cur->data,i);
+			printf("\033[%d;54H %s %s===============================%s\n",i,BG_BLUE_SOFT,FG_WHITE,RESET);
+			printf("\033[%d;54H %s %s=======输入6返回上界面=========%s\n",++i,BG_BLUE_SOFT,FG_WHITE,RESET);
 }
 
 // void cai_insert(LLIST *handler,struct MENU* data)
@@ -99,25 +130,29 @@ struct llist_node *menu_find_by_name(LLIST *handler, const char* name)
         item = (struct MENU *)cur->data;
         if(strcmp(item->name,name) == 0)
         {
+			printf("%s     %.2f  \n",item->name,item->price);
             return cur;
         }
     }
+		printf("未找到该菜品\n");
     return NULL;
 }
 
-void cai_change(LLIST *handler) {
+void cai_change(LLIST *handler) //修改菜品价格header
+{
 
-    if (handler == NULL)
+    if (handler == NULL)//检查头节点是否为空
     {
-        printf("菜单未初始化！\n");
+        printf("菜单未初始化！\n");//头节点为空直接返回
         return;
     }
     char targetName[NAMESIZE];//用来存储名字
     float newPrice;
-    char choice;
-    do {
+    char choice;//用来存储用户是否继续修改的选择
+    do //循环修改
+    {
         printf("\n=== 修改菜品价格 ===\n");
-        if (handler->head.next == &handler->head)//检查是否为空菜单
+       if (handler->head.next == &handler->head)//检查是否为空菜单
         {
             printf("当前菜单为空，请先添加菜品！\n");
             return;
@@ -131,16 +166,16 @@ void cai_change(LLIST *handler) {
         }
         else
         {
-            struct MENU *item = (struct MENU *)foundNode->data;
+            struct MENU *item = (struct MENU *)foundNode->data;//struct MENU 指针指向找到的菜品数据
             // 显示当前信息
             printf("\n找到菜品：%s\n", item->name);
-            printf("当前价格：%.2f\n", item->price);
+            printf("当前价格：%.2f\n", item->price);//item指向找到的菜品结构体
             // 输入新价格
             printf("请输入新的价格: ");
-            while (scanf("%f", &newPrice) != 1 || newPrice < 0)
+            while (scanf("%f", &newPrice) != 1 || newPrice < 0)//输入验证,scanf返回值不为1或者价格小于0都视为无效输入
             {
                 printf("价格无效！请输入一个有效的正数: ");
-                while (getchar() != '\n');  // 清除输入缓冲区
+                while (getchar() != '\n');  // 回车清除输入缓冲区
             }
             // 确认修改
             printf("\n确认将 %s 的价格从 %.2f 修改为 %.2f 吗？(y/n): ", 
@@ -177,3 +212,10 @@ void menu_destroy(LLIST* handler) {
     free(handler);
 }
 
+
+
+
+
+void show_prcode(){
+	system("xdg-open wechat_qrcode.png");
+	}
